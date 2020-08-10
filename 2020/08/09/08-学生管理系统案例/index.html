@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="description" content="编程者的学习之路" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    express-08 学生管理系统模块 |  Auguste-zhao&#39;s Blog
+  </title>
+  <meta name="generator" content="hexo-theme-yilia-plus">
+  
+  <link rel="shortcut icon" href="/my.ico" />
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+<script src="/js/pace.min.js"></script>
+
+
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    <main class="content">
+      <section class="outer">
+  <article id="post-08-学生管理系统案例" class="article article-type-post" itemscope
+  itemprop="blogPost" data-scroll-reveal>
+
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  express-08 学生管理系统模块
+</h1>
+  
+
+    </header>
+    
+
+    
+    <div class="article-meta">
+      <a href="/2020/08/09/08-%E5%AD%A6%E7%94%9F%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E6%A1%88%E4%BE%8B/" class="article-date">
+  <time datetime="2020-08-09T07:54:33.000Z" itemprop="datePublished">2020-08-09</time>
+</a>
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/express/">express</a>
+  </div>
+
+      
+      
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.1k字</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10分钟</span>
+        </span>
+    </span>
+</div>
+
+      
+    </div>
+    
+
+    
+    
+    <div class="tocbot"></div>
+
+
+
+
+
+    
+
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+
+
+      
+
+      
+      <h1 id="学生管理系统模块"><a href="#学生管理系统模块" class="headerlink" title="学生管理系统模块"></a>学生管理系统模块</h1><h2 id="引述"><a href="#引述" class="headerlink" title="引述"></a>引述</h2><ul>
+<li>这个小案例将为我们后面做大案例打一个基础，同时也培养我们模块化编程思想</li>
+<li>这个案例将实现基本的<code>增删改查</code></li>
+<li>这个案例主要是锻炼思维，所以有些地方没有采用新的<code>API</code>和方法</li>
+</ul>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><h6 id="之前的代码"><a href="#之前的代码" class="headerlink" title="之前的代码"></a>之前的代码</h6><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//引入模块`express`</span></span><br><span class="line"><span class="keyword">let</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建`app`</span></span><br><span class="line"><span class="keyword">let</span> app = express();</span><br><span class="line"></span><br><span class="line"><span class="comment">//引入中间件`body-parser`来处理`post`请求</span></span><br><span class="line"><span class="keyword">let</span> bodyParser = <span class="built_in">require</span>(<span class="string">&quot;body-parser&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//数据初始化</span></span><br><span class="line"><span class="keyword">let</span> students = [</span><br><span class="line">    &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;jack&#x27;</span>,<span class="string">&#x27;age&#x27;</span>:<span class="number">18</span>,<span class="string">&#x27;grade&#x27;</span>:<span class="number">85</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;rose&#x27;</span>,<span class="string">&#x27;age&#x27;</span>:<span class="number">20</span>,<span class="string">&#x27;grade&#x27;</span>:<span class="number">75</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&#x27;name&#x27;</span>:<span class="string">&#x27;lucy&#x27;</span>,<span class="string">&#x27;age&#x27;</span>:<span class="number">25</span>,<span class="string">&#x27;grade&#x27;</span>:<span class="number">90</span>&#125;</span><br><span class="line">]</span><br><span class="line"><span class="comment">//开放文件目录以保证引用文件时可以正常，一些必要的模块的语句</span></span><br><span class="line">app.engine(<span class="string">&quot;html&quot;</span>, <span class="built_in">require</span>(<span class="string">&quot;express-art-template&quot;</span>));</span><br><span class="line">app.use(<span class="string">&quot;/public/&quot;</span>, express.static(<span class="string">&quot;./public/&quot;</span>));</span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">false</span> &#125;));</span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line"><span class="comment">//get路由</span></span><br><span class="line">app.get(<span class="string">&quot;/&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.render(<span class="string">&#x27;index,htnl&#x27;</span>,&#123;</span><br><span class="line">        students:students</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//监听端口</span></span><br><span class="line">app.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;server is running...&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>我们最初的代码就像上面这样，所有操作都在一起，功能也能正常实现</li>
+<li>但是，如果路由有100个呢？如果每个路由的请求都很复杂呢？这些代码难道都放在一个文件下？</li>
+<li>所以就需要<code>模块化编程的思想</code>，就像我们之前把不同文件放在不同目录下，用的时候在去找就行了</li>
+</ul>
+<h6 id="第一步改进（数据分离，数据操作分离——不实现增删改查）"><a href="#第一步改进（数据分离，数据操作分离——不实现增删改查）" class="headerlink" title="第一步改进（数据分离，数据操作分离——不实现增删改查）"></a>第一步改进（数据分离，数据操作分离——不实现增删改查）</h6><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">app.js文件</span><br><span class="line"></span><br><span class="line"><span class="comment">//引入模块`express`</span></span><br><span class="line"><span class="keyword">let</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//创建`app`</span></span><br><span class="line"><span class="keyword">let</span> app = express();</span><br><span class="line"></span><br><span class="line"><span class="comment">//引入中间件`body-parser`来处理`post`请求</span></span><br><span class="line"><span class="keyword">let</span> bodyParser = <span class="built_in">require</span>(<span class="string">&quot;body-parser&quot;</span>);</span><br><span class="line"></span><br><span class="line">=======================================</span><br><span class="line"><span class="comment">//数据初始化——引入数据操作完成之后的文件      </span></span><br><span class="line"><span class="keyword">let</span> Students = <span class="built_in">require</span>(<span class="string">&#x27;dataDeal.js&#x27;</span>)</span><br><span class="line">=======================================</span><br><span class="line"></span><br><span class="line"><span class="comment">//开放文件目录以保证引用文件时可以正常，一些必要的模块的语句</span></span><br><span class="line">app.engine(<span class="string">&quot;html&quot;</span>, <span class="built_in">require</span>(<span class="string">&quot;express-art-template&quot;</span>));</span><br><span class="line">app.use(<span class="string">&quot;/public/&quot;</span>, express.static(<span class="string">&quot;./public/&quot;</span>));</span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">false</span> &#125;));</span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line">========================================</span><br><span class="line"><span class="comment">//get路由——调用Students的show方法</span></span><br><span class="line">app.get(<span class="string">&quot;/&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    Students.show(<span class="function"><span class="keyword">function</span>(<span class="params">err,data</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(err)&#123;</span><br><span class="line">            <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        res.render(<span class="string">&#x27;index.html&#x27;</span>,&#123;</span><br><span class="line">            students:data;</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;);</span><br><span class="line">========================================</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//监听端口</span></span><br><span class="line">app.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;server is running...&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">dataDeal.js</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 操作数据</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//将数据文件路径拿到</span></span><br><span class="line"><span class="keyword">let</span> dbPath = <span class="string">&quot;./db.json&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//拿到已有的数据</span></span><br><span class="line"><span class="built_in">exports</span>.show = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    callback(<span class="literal">null</span>,<span class="built_in">JSON</span>.parse(data).students);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//1.回调函数是因为这里仅仅是操作数据，不做其他操作，所以抛出</span></span><br><span class="line"><span class="comment">//2.因为data文件默认是`二进制编码`，我们要先把他转成`字符串` utf8</span></span><br><span class="line"><span class="comment">//3.但是我们在渲染的时候要的是`json`，所以还需要进行操作 JSON.parse(data)</span></span><br><span class="line"><span class="comment">//4.转成`json`之后，要操作的是students对象数组 JSON.parse(data).students</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">db.json</span><br><span class="line"></span><br><span class="line"><span class="comment">//将数据以json形式存放</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;students&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;jack&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;age&quot;</span>: <span class="number">25</span>,</span><br><span class="line">      <span class="attr">&quot;grade&quot;</span>: <span class="number">80</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;rose&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;age&quot;</span>: <span class="number">27</span>,</span><br><span class="line">      <span class="attr">&quot;grade&quot;</span>: <span class="number">85</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;name&quot;</span>: <span class="string">&quot;lucy&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;age&quot;</span>: <span class="number">15</span>,</span><br><span class="line">      <span class="attr">&quot;grade&quot;</span>: <span class="number">90</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h6 id="第二步改进（数据分离，数据操作分离——增）"><a href="#第二步改进（数据分离，数据操作分离——增）" class="headerlink" title="第二步改进（数据分离，数据操作分离——增）"></a>第二步改进（数据分离，数据操作分离——增）</h6><ul>
+<li>我们把路由也装进模块</li>
+<li>其他的部分也实现</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">app.js</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> app = express();</span><br><span class="line"><span class="keyword">let</span> bodyParser = <span class="built_in">require</span>(<span class="string">&quot;body-parser&quot;</span>);</span><br><span class="line"></span><br><span class="line">===========================================</span><br><span class="line"><span class="comment">//引入路由模块</span></span><br><span class="line"><span class="keyword">let</span> router = <span class="built_in">require</span>(<span class="string">&quot;./router.js&quot;</span>);</span><br><span class="line">===========================================</span><br><span class="line"></span><br><span class="line">app.engine(<span class="string">&quot;html&quot;</span>, <span class="built_in">require</span>(<span class="string">&quot;express-art-template&quot;</span>));</span><br><span class="line">app.use(<span class="string">&quot;/public/&quot;</span>, express.static(<span class="string">&quot;./public/&quot;</span>));</span><br><span class="line">app.use(bodyParser.urlencoded(&#123; <span class="attr">extended</span>: <span class="literal">false</span> &#125;));</span><br><span class="line">app.use(bodyParser.json());</span><br><span class="line"></span><br><span class="line">===========================================</span><br><span class="line"><span class="comment">//使用路由</span></span><br><span class="line">app.use(router);</span><br><span class="line">===========================================</span><br><span class="line">    </span><br><span class="line">app.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&quot;server is running...&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">router.js</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> router = express.Router();</span><br><span class="line">===========================================</span><br><span class="line"><span class="comment">//引入数据处理文件</span></span><br><span class="line"><span class="keyword">let</span> Students = <span class="built_in">require</span>(<span class="string">&quot;./dataDeal.js&quot;</span>);</span><br><span class="line">===========================================</span><br><span class="line">router.get(<span class="string">&quot;/&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  Students.show(<span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.render(<span class="string">&quot;index.html&quot;</span>, &#123;</span><br><span class="line">      students: data</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.get(<span class="string">&quot;/new&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.render(<span class="string">&quot;new.html&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line">==================================================</span><br><span class="line">router.post(<span class="string">&quot;/add&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  Students.save(req.body, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">==================================================</span><br><span class="line"></span><br><span class="line">======================================</span><br><span class="line"><span class="comment">//导出</span></span><br><span class="line"><span class="built_in">module</span>.exports = router;</span><br><span class="line">======================================</span><br><span class="line">    </span><br><span class="line"><span class="comment">//1.以post方式请求的，先调用save方法</span></span><br><span class="line"><span class="comment">//2.传入 请求体(我们通过中间件可以直接得到json格式的内容) req.body</span></span><br><span class="line"><span class="comment">//3.重定向 res.redirect(&#x27;/&#x27;)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">dataDeal.js</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> dbPath = <span class="string">&quot;./db.json&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//拿到已有的数据</span></span><br><span class="line"><span class="built_in">exports</span>.show = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    callback(<span class="literal">null</span>, <span class="built_in">JSON</span>.parse(data).students);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">=========================================================================================</span><br><span class="line"><span class="built_in">exports</span>.save = <span class="function"><span class="keyword">function</span>(<span class="params">student, callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> students = <span class="built_in">JSON</span>.parse(data).students; <span class="comment">//这个时候已经是对象数组</span></span><br><span class="line">    students.push(student);</span><br><span class="line">    <span class="keyword">let</span> studentsData = <span class="built_in">JSON</span>.stringify(&#123; <span class="attr">students</span>: students &#125;); <span class="comment">//还原原来的形式，以便于下次操作,所以需要补齐</span></span><br><span class="line"></span><br><span class="line">    fs.writeFile(dbPath, studentsData, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">return</span> callback(err);</span><br><span class="line">      &#125;</span><br><span class="line">      callback(<span class="literal">null</span>);<span class="comment">//因为不需要对写入操作进行处理，所以不用传递参数</span></span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line">=========================================================================================</span><br></pre></td></tr></table></figure>
+
+
+
+<h6 id="第三步改进（数据分离，数据操作分离——增删改查）"><a href="#第三步改进（数据分离，数据操作分离——增删改查）" class="headerlink" title="第三步改进（数据分离，数据操作分离——增删改查）"></a>第三步改进（数据分离，数据操作分离——增删改查）</h6><ul>
+<li>app.js不用改变，因为只需要引用路由文件和使用路由就可以</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">router.js</span><br><span class="line"><span class="keyword">let</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> router = express.Router();</span><br><span class="line"><span class="keyword">let</span> Students = <span class="built_in">require</span>(<span class="string">&quot;./dataDeal.js&quot;</span>);</span><br><span class="line"></span><br><span class="line">router.get(<span class="string">&quot;/&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  Students.show(<span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.render(<span class="string">&quot;index.html&quot;</span>, &#123;</span><br><span class="line">      students: data</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.get(<span class="string">&quot;/new&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.render(<span class="string">&quot;new.html&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line">router.post(<span class="string">&quot;/add&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  Students.save(req.body, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">=========================================================================================</span><br><span class="line">    <span class="comment">//渲染编辑页面</span></span><br><span class="line">router.get(<span class="string">&quot;/edit&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    </span><br><span class="line">   <span class="comment">//传递请求的名字（这个名字是根据编辑链接的请求得来的）</span></span><br><span class="line">  Students.findByName(req.query.name, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="comment">//根据下面的名字渲染编辑页面</span></span><br><span class="line">    res.render(<span class="string">&quot;edit.html&quot;</span>, &#123;</span><br><span class="line">      student: data</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//渲染处理过的编辑页面</span></span><br><span class="line">router.post(<span class="string">&quot;/edit&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//传递请求的内容</span></span><br><span class="line">  Students.updateByName(req.body, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//处理删除</span></span><br><span class="line">router.get(<span class="string">&quot;/delete&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//传递请求的名字（这个名字是根据编辑链接的请求得来的）</span></span><br><span class="line">  Students.delete(req.query.name, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.status(<span class="number">500</span>).send(<span class="string">&quot;Server error.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    res.redirect(<span class="string">&quot;/&quot;</span>);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">=========================================================================================</span><br><span class="line"><span class="built_in">module</span>.exports = router;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">dataDeal.js</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> fs = <span class="built_in">require</span>(<span class="string">&quot;fs&quot;</span>);</span><br><span class="line"><span class="keyword">let</span> dbPath = <span class="string">&quot;./db.json&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//拿到已有的数据</span></span><br><span class="line"><span class="built_in">exports</span>.show = <span class="function"><span class="keyword">function</span>(<span class="params">callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    callback(<span class="literal">null</span>, <span class="built_in">JSON</span>.parse(data).students);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">exports</span>.save = <span class="function"><span class="keyword">function</span>(<span class="params">student, callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> students = <span class="built_in">JSON</span>.parse(data).students; <span class="comment">//这个时候已经是对象数组</span></span><br><span class="line">    students.push(student);</span><br><span class="line">    <span class="keyword">let</span> studentsData = <span class="built_in">JSON</span>.stringify(&#123; <span class="attr">students</span>: students &#125;); <span class="comment">//还原原来的形式，以便于下次操作</span></span><br><span class="line"></span><br><span class="line">    fs.writeFile(dbPath, studentsData, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">return</span> callback(err);</span><br><span class="line">      &#125;</span><br><span class="line">      callback(<span class="literal">null</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">=========================================================================================</span><br><span class="line"><span class="built_in">exports</span>.findByName = <span class="function"><span class="keyword">function</span>(<span class="params">name, callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">//先把JSON转成对象数组</span></span><br><span class="line">    <span class="keyword">let</span> students = <span class="built_in">JSON</span>.parse(data).students;</span><br><span class="line">      <span class="comment">//查找到相同名字的，并且返回它</span></span><br><span class="line">    <span class="keyword">let</span> ret = students.find(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> item.name == name;</span><br><span class="line">    &#125;);</span><br><span class="line">      </span><br><span class="line">      <span class="comment">//把这个名字传给上面</span></span><br><span class="line">    callback(<span class="literal">null</span>, ret);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">exports</span>.updateByName = <span class="function"><span class="keyword">function</span>(<span class="params">studentName, callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="comment">//先把JSON转成对象数组</span></span><br><span class="line">    <span class="keyword">let</span> students = <span class="built_in">JSON</span>.parse(data).students;</span><br><span class="line">     <span class="comment">//查找到相同名字的，并且返回它</span></span><br><span class="line">    <span class="keyword">let</span> stu = students.find(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> (item.name = studentName.name);</span><br><span class="line">    &#125;);</span><br><span class="line">      <span class="comment">//把传递进来的名字的所有内容替换给找到的名字的所有内容</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> studentName) &#123;</span><br><span class="line">      stu[key] = studentName[key];</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">//再封装回去</span></span><br><span class="line">    <span class="keyword">let</span> studentsData = <span class="built_in">JSON</span>.stringify(&#123; <span class="attr">students</span>: students &#125;);</span><br><span class="line">      <span class="comment">//重新写入</span></span><br><span class="line">    fs.writeFile(dbPath, studentsData, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">return</span> callback(err);</span><br><span class="line">      &#125;</span><br><span class="line">      callback(<span class="literal">null</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="built_in">exports</span>.delete = <span class="function"><span class="keyword">function</span>(<span class="params">studentName, callback</span>) </span>&#123;</span><br><span class="line">  fs.readFile(dbPath, <span class="string">&quot;utf8&quot;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, data</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">return</span> callback(err);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> students = <span class="built_in">JSON</span>.parse(data).students;</span><br><span class="line">      <span class="comment">//找到名字所在的序号</span></span><br><span class="line">    <span class="keyword">let</span> deleteNum = students.findIndex(<span class="function"><span class="keyword">function</span>(<span class="params">item</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">return</span> item.name == studentName;</span><br><span class="line">    &#125;);</span><br><span class="line">      <span class="comment">//删除这个人</span></span><br><span class="line">    students.splice(deleteNum, <span class="number">1</span>);</span><br><span class="line">      <span class="comment">//重新转成JSON后写入</span></span><br><span class="line">    <span class="keyword">let</span> studentsData = <span class="built_in">JSON</span>.stringify(&#123; <span class="attr">students</span>: students &#125;);</span><br><span class="line">    fs.writeFile(dbPath, studentsData, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">return</span> callback(err);</span><br><span class="line">      &#125;</span><br><span class="line">      callback(<span class="literal">null</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br><span class="line">=========================================================================================</span><br></pre></td></tr></table></figure>
+
+
+      
+      <!-- reward -->
+      
+      <div id="reward-btn">
+        打赏
+      </div>
+      
+    </div>
+    
+    
+      <!-- copyright -->
+      
+        <div class="declare">
+          <ul class="post-copyright">
+            <li>
+              <i class="ri-copyright-line"></i>
+              <strong>版权声明： </strong s>
+              本博客所有文章除特别声明外，均采用 <a href="https://www.apache.org/licenses/LICENSE-2.0.html" rel="external nofollow"
+                target="_blank">Apache License 2.0</a> 许可协议。转载请注明出处！
+            </li>
+          </ul>
+        </div>
+        
+    <footer class="article-footer">
+      
+          
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://yoursite.com/2020/08/09/08-%E5%AD%A6%E7%94%9F%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%E6%A1%88%E4%BE%8B/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/express/" rel="tag">express</a></li></ul>
+
+
+    </footer>
+
+  </div>
+
+  
+  
+  <nav class="article-nav">
+    
+      <a href="/2020/08/09/07-%E6%A0%B9%E6%8D%AE%E8%AF%B7%E6%B1%82%E7%9A%84%E5%9C%B0%E5%9D%80%E4%B8%8D%E5%90%8C%E8%BF%94%E5%9B%9E%E4%B8%8D%E5%90%8C%E5%93%8D%E5%BA%94/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            node.js-07 根据请求的地址不同返回不同响应
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2020/08/09/07-%E8%B7%AF%E7%94%B1%E6%A8%A1%E5%9D%97%E6%8F%90%E5%8F%96/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">express-07 路由模块管理</div>
+      </a>
+    
+  </nav>
+
+
+  
+
+  
+  
+  
+
+  
+  
+  
+
+</article>
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul class="list-inline">
+      <li>
+        &copy;
+        2020
+        Auguste-zhao
+      </li>
+      <li>
+        
+        Powered by
+        
+        
+        <a href="https://hexo.io" target="_blank">Hexo</a> Theme <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul class="list-inline">
+      <li>
+        
+        
+        <span>
+  <i>PV:<span id="busuanzi_value_page_pv"></span></i>
+  <i>UV:<span id="busuanzi_value_site_uv"></span></i>
+</span>
+        
+      </li>
+      
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="to_top">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/my.svg" alt="Auguste-zhao&#39;s Blog"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://www.notion.so/7f3ecac43837453698b4f31aca947b2a?v=25ea629760c942e083aa4fb1776971c8">BirdsInSky</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://www.notion.so/JavaScript-2a6c07afe3fe4fa9b81e07aa2179dd89">learn</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" target="_blank" rel="noopener" href="https://121.199.27.149:8080">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="Search">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="/images/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<script src="/js/share.js"></script>
+
+
+
+
+<script>
+  try {
+    var typed = new Typed("#subtitle", {
+    strings: ['一生观望的烟火.都只在记忆中临摹','所爱隔山海.山海亦可平','世俗中出家'],
+    startDelay: 0,
+    typeSpeed: 100,
+    loop: true,
+    backSpeed: 50,
+    showCursor: false
+    });
+  } catch (err) {
+  }
+  
+</script>
+
+
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  // Tocbot_v4.7.0  http://tscanlin.github.io/tocbot/
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer:'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto',
+    onClick: (e) => {
+      $('.toc-link').removeClass('is-active-link');
+      $(`a[href=${e.target.hash}]`).addClass('is-active-link');
+      $(e.target.hash).scrollIntoView();
+      return false;
+    }
+  });
+</script>
+
+
+<script>
+  var ayerConfig = {
+    mathjax: false
+  }
+</script>
+
+
+<script src="/js/ayer.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+
+
+
+<script type="text/javascript" src="https://js.users.51.la/20544303.js"></script>
+
+    
+  </div>
+</body>
+
+</html>
